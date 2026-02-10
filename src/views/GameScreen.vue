@@ -5,7 +5,6 @@ import { t } from '../data/i18n'
 import EventCard from '../components/EventCard.vue'
 import OptionButton from '../components/OptionButton.vue'
 import HUD from '../components/HUD.vue'
-import RelationPanel from '../components/RelationPanel.vue'
 
 const emit = defineEmits<{ (e: 'end'): void }>()
 
@@ -50,7 +49,6 @@ watch(
 
     <HUD />
 
-    <RelationPanel />
 
     <EventCard :title="eventTitle" :description="eventDesc" />
 

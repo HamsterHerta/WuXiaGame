@@ -7,8 +7,8 @@ export type GameStats = Record<StatKey, number>
 export type Condition =
   | { type: 'statMin'; stat: StatKey; value: number }
   | { type: 'statMax'; stat: StatKey; value: number }
-  | { type: 'relMin'; stat: RelationKey; value: number }
-  | { type: 'relMax'; stat: RelationKey; value: number }
+  | { type: 'relMin'; stat: RelationKey; value: number; target?: string }
+  | { type: 'relMax'; stat: RelationKey; value: number; target?: string }
   | { type: 'flag'; flag: string }
   | { type: 'notFlag'; flag: string }
 
@@ -18,13 +18,14 @@ export type RelationKey = 'favor' | 'rivalry' | 'loyalty'
 
 export type RelationStats = Record<RelationKey, number>
 
-export type RelationEffect = { stat: RelationKey; delta: number }
+export type RelationEffect = { stat: RelationKey; delta: number; target?: string }
 
 export type Option = {
   textKey: I18nKey
   effects?: Effect[]
   randomRewards?: RandomReward[]
   relationEffects?: RelationEffect[]
+  relationTarget?: string
   waitDays?: number
   setFlags?: string[]
   nextEventId?: string
@@ -53,7 +54,7 @@ export type Ending = {
 export type GameState = {
   day: number
   stats: GameStats
-  relations: RelationStats
+  relations: Record<string, RelationStats>
   flags: Record<string, boolean>
   currentEventId: string
   history: string[]

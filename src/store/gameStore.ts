@@ -28,16 +28,16 @@ const baseStats: GameStats = {
   luck: 1
 }
 
-const baseRelations: Record<RelationKey, number> = {
-  favor: 1,
+const baseRelation: Record<RelationKey, number> = {
+  favor: 0,
   rivalry: 0,
-  loyalty: 1
+  loyalty: 0
 }
 
 const createState = (): GameState => ({
   day: 1,
   stats: { ...baseStats },
-  relations: { ...baseRelations },
+  relations: {},
   flags: {},
   currentEventId: START_EVENT_ID,
   history: [],
@@ -55,6 +55,23 @@ const store = reactive({
 const clampStat = (value: number) => Math.max(0, Math.min(10, value))
 const DEADLINE = 0
 
+const defaultRelationTarget = (eventId?: string) => {
+  if (!eventId) return 'jianghu'
+  if (eventId.includes('assassin')) return 'enemy'
+  if (eventId.includes('oath')) return 'ally'
+  if (eventId.includes('alliance')) return 'heroes'
+  if (eventId.includes('sect')) return 'sects'
+  if (eventId.includes('swordsman')) return 'swordsman'
+  return 'jianghu'
+}
+
+const getRelation = (state: GameState, target: string) => {
+  if (!state.relations[target]) {
+    state.relations[target] = { ...baseRelation }
+  }
+  return state.relations[target]
+}
+
 const meetsCondition = (condition: Condition, state: GameState) => {
   switch (condition.type) {
     case 'statMin':
@@ -62,9 +79,17 @@ const meetsCondition = (condition: Condition, state: GameState) => {
     case 'statMax':
       return state.stats[condition.stat] <= condition.value
     case 'relMin':
-      return state.relations[condition.stat] >= condition.value
+      return (
+        getRelation(state, condition.target ?? defaultRelationTarget(state.currentEventId))[
+          condition.stat
+        ] >= condition.value
+      )
     case 'relMax':
-      return state.relations[condition.stat] <= condition.value
+      return (
+        getRelation(state, condition.target ?? defaultRelationTarget(state.currentEventId))[
+          condition.stat
+        ] <= condition.value
+      )
     case 'flag':
       return Boolean(state.flags[condition.flag])
     case 'notFlag':
@@ -117,11 +142,15 @@ const applyEffects = (effects: Option['effects'] | undefined, stats: GameStats) 
 
 const applyRelationEffects = (
   effects: RelationEffect[] | undefined,
-  relations: GameState['relations']
+  relations: GameState['relations'],
+  fallbackTarget: string
 ) => {
   if (!effects) return
   effects.forEach((effect) => {
-    relations[effect.stat] = clampStat(relations[effect.stat] + effect.delta)
+    const target = effect.target ?? fallbackTarget
+    const current = relations[target] ?? { ...baseRelation }
+    current[effect.stat] = clampStat(current[effect.stat] + effect.delta)
+    relations[target] = current
   })
 }
 
@@ -180,9 +209,7 @@ const loadGame = () => {
     if (data.state) {
       Object.assign(store.state, data.state)
       if (!store.state.relations) {
-        store.state.relations = { ...baseRelations }
-      } else {
-        store.state.relations = { ...baseRelations, ...store.state.relations }
+        store.state.relations = {}
       }
     }
     store.saveVersion += 1
@@ -207,7 +234,9 @@ const chooseOption = (option: Option) => {
   if (store.state.ended) return
 
   applyEffects(option.effects, store.state.stats)
-  applyRelationEffects(option.relationEffects, store.state.relations)
+  const relationTarget =
+    option.relationTarget ?? defaultRelationTarget(store.state.currentEventId)
+  applyRelationEffects(option.relationEffects, store.state.relations, relationTarget)
   applyRandomRewards(option.randomRewards, store.state.stats)
   option.setFlags?.forEach((flag) => {
     store.state.flags[flag] = true
@@ -298,13 +327,6 @@ const statLabels = computed(() => {
   }, {} as Record<StatKey, string>)
 })
 
-const relationStats = computed(() => {
-  return [
-    { key: 'favor', label: t('app.relation.favor', store.lang), value: store.state.relations.favor },
-    { key: 'rivalry', label: t('app.relation.rivalry', store.lang), value: store.state.relations.rivalry },
-    { key: 'loyalty', label: t('app.relation.loyalty', store.lang), value: store.state.relations.loyalty }
-  ]
-})
 
 export const useGameStore = () => {
   return {
@@ -316,7 +338,6 @@ export const useGameStore = () => {
     getEnding,
     hudStats,
     statLabels,
-    relationStats,
     newGame,
     loadGame,
     clearSave,
