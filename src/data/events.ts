@@ -7,15 +7,31 @@ export const events: Event[] = [
     id: 'start',
     titleKey: 'event.start.title',
     descKey: 'event.start.desc',
+    category: 'fixed',
+    locationId: 'road',
+    durationDays: 1,
     options: [
-      { textKey: 'event.start.opt1', nextEventId: 'sect', effects: [{ stat: 'wisdom', delta: 1 }] },
-      { textKey: 'event.start.opt2', nextEventId: 'market', effects: [{ stat: 'morality', delta: 1 }] }
+      {
+        textKey: 'event.start.opt1',
+        nextEventId: 'sect',
+        moveTo: 'sect',
+        effects: [{ stat: 'wisdom', delta: 1 }]
+      },
+      {
+        textKey: 'event.start.opt2',
+        nextEventId: 'market',
+        moveTo: 'market',
+        effects: [{ stat: 'morality', delta: 1 }]
+      }
     ]
   },
   {
     id: 'sect',
     titleKey: 'event.sect.title',
     descKey: 'event.sect.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 2,
     options: [
       {
         textKey: 'event.sect.opt1',
@@ -39,6 +55,9 @@ export const events: Event[] = [
     id: 'market',
     titleKey: 'event.market.title',
     descKey: 'event.market.desc',
+    category: 'conditional',
+    locationId: 'market',
+    durationDays: 1,
     options: [
       {
         textKey: 'event.market.opt1',
@@ -63,7 +82,10 @@ export const events: Event[] = [
     id: 'bandit',
     titleKey: 'event.bandit.title',
     descKey: 'event.bandit.desc',
+    category: 'conditional',
+    locationId: 'road',
     waitDays: 2,
+    durationDays: 2,
     options: [
       {
         textKey: 'event.bandit.opt1',
@@ -89,7 +111,10 @@ export const events: Event[] = [
     id: 'sword',
     titleKey: 'event.sword.title',
     descKey: 'event.sword.desc',
+    category: 'conditional',
+    locationId: 'mountain',
     waitDays: 2,
+    durationDays: 2,
     options: [
       {
         textKey: 'event.sword.opt1',
@@ -114,6 +139,9 @@ export const events: Event[] = [
     id: 'scholar',
     titleKey: 'event.scholar.title',
     descKey: 'event.scholar.desc',
+    category: 'conditional',
+    locationId: 'mountain',
+    durationDays: 1,
     options: [
       {
         textKey: 'event.scholar.opt1',
@@ -136,6 +164,9 @@ export const events: Event[] = [
     id: 'alliance',
     titleKey: 'event.alliance.title',
     descKey: 'event.alliance.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 2,
     options: [
       {
         textKey: 'event.alliance.opt1',
@@ -159,6 +190,9 @@ export const events: Event[] = [
     id: 'assassin',
     titleKey: 'event.assassin.title',
     descKey: 'event.assassin.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 2,
     options: [
       {
         textKey: 'event.assassin.opt1',
@@ -181,6 +215,9 @@ export const events: Event[] = [
     id: 'village',
     titleKey: 'event.village.title',
     descKey: 'event.village.desc',
+    category: 'conditional',
+    locationId: 'village',
+    durationDays: 2,
     options: [
       {
         textKey: 'event.village.opt1',
@@ -204,7 +241,10 @@ export const events: Event[] = [
     id: 'tournament',
     titleKey: 'event.tournament.title',
     descKey: 'event.tournament.desc',
+    category: 'conditional',
+    locationId: 'sect',
     waitDays: 2,
+    durationDays: 3,
     options: [
       {
         textKey: 'event.tournament.opt1',
@@ -229,6 +269,9 @@ export const events: Event[] = [
     id: 'tavern',
     titleKey: 'event.tavern.title',
     descKey: 'event.tavern.desc',
+    category: 'conditional',
+    locationId: 'tavern',
+    durationDays: 1,
     options: [
       {
         textKey: 'event.tavern.opt1',
@@ -251,6 +294,9 @@ export const events: Event[] = [
     id: 'hero_swordsman',
     titleKey: 'event.hero.swordsman.title',
     descKey: 'event.hero.swordsman.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     options: [
       {
         textKey: 'event.hero.swordsman.opt1',
@@ -271,6 +317,9 @@ export const events: Event[] = [
     id: 'hero_sect',
     titleKey: 'event.hero.sect.title',
     descKey: 'event.hero.sect.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     options: [
       {
         textKey: 'event.hero.sect.opt1',
@@ -288,6 +337,9 @@ export const events: Event[] = [
     id: 'hero_bond',
     titleKey: 'event.hero.bond.title',
     descKey: 'event.hero.bond.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 2,
     conditions: [{ type: 'relMin', stat: 'favor', value: 2 }],
     options: [
       {
@@ -309,6 +361,9 @@ export const events: Event[] = [
     id: 'line_alliance',
     titleKey: 'event.line.alliance.title',
     descKey: 'event.line.alliance.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 2,
     conditions: [{ type: 'relMin', stat: 'favor', value: 3 }],
     options: [
       {
@@ -331,6 +386,9 @@ export const events: Event[] = [
     id: 'line_assassin',
     titleKey: 'event.line.assassin.title',
     descKey: 'event.line.assassin.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 2,
     waitDays: 2,
     conditions: [{ type: 'relMin', stat: 'rivalry', value: 2 }],
     options: [
@@ -352,6 +410,9 @@ export const events: Event[] = [
     id: 'line_oath',
     titleKey: 'event.line.oath.title',
     descKey: 'event.line.oath.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 2,
     waitDays: 2,
     conditions: [{ type: 'relMin', stat: 'loyalty', value: 2 }],
     options: [
@@ -373,6 +434,9 @@ export const events: Event[] = [
     id: 'line_sectprobe',
     titleKey: 'event.line.sectprobe.title',
     descKey: 'event.line.sectprobe.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [
       { type: 'statMin', stat: 'renown', value: 3 },
       { type: 'relMax', stat: 'rivalry', value: 4 }
@@ -396,6 +460,9 @@ export const events: Event[] = [
     id: 'line_sectinvite',
     titleKey: 'event.line.sectinvite.title',
     descKey: 'event.line.sectinvite.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 2,
     conditions: [
       { type: 'statMin', stat: 'renown', value: 4 },
       { type: 'relMin', stat: 'favor', value: 2 }
@@ -422,6 +489,9 @@ export const events: Event[] = [
     id: 'line_sectsiege',
     titleKey: 'event.line.sectsiege.title',
     descKey: 'event.line.sectsiege.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 3,
     waitDays: 2,
     conditions: [
       { type: 'statMin', stat: 'renown', value: 5 },
@@ -448,6 +518,9 @@ export const events: Event[] = [
     id: 'line_alliance_1',
     titleKey: 'event.line.alliance1.title',
     descKey: 'event.line.alliance1.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage1' }],
     options: [
       {
@@ -468,6 +541,9 @@ export const events: Event[] = [
     id: 'line_alliance_2',
     titleKey: 'event.line.alliance2.title',
     descKey: 'event.line.alliance2.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage2' }],
     options: [
       {
@@ -488,6 +564,9 @@ export const events: Event[] = [
     id: 'line_alliance_3',
     titleKey: 'event.line.alliance3.title',
     descKey: 'event.line.alliance3.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage3' }],
     options: [
       {
@@ -508,6 +587,9 @@ export const events: Event[] = [
     id: 'line_alliance_4',
     titleKey: 'event.line.alliance4.title',
     descKey: 'event.line.alliance4.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage4' }],
     options: [
       {
@@ -528,6 +610,9 @@ export const events: Event[] = [
     id: 'line_alliance_5',
     titleKey: 'event.line.alliance5.title',
     descKey: 'event.line.alliance5.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage5' }],
     options: [
       {
@@ -548,6 +633,9 @@ export const events: Event[] = [
     id: 'line_alliance_6',
     titleKey: 'event.line.alliance6.title',
     descKey: 'event.line.alliance6.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage6' }],
     options: [
       {
@@ -568,6 +656,9 @@ export const events: Event[] = [
     id: 'line_alliance_7',
     titleKey: 'event.line.alliance7.title',
     descKey: 'event.line.alliance7.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage7' }],
     options: [
       {
@@ -588,6 +679,9 @@ export const events: Event[] = [
     id: 'line_alliance_8',
     titleKey: 'event.line.alliance8.title',
     descKey: 'event.line.alliance8.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage8' }],
     options: [
       {
@@ -608,6 +702,9 @@ export const events: Event[] = [
     id: 'line_alliance_9',
     titleKey: 'event.line.alliance9.title',
     descKey: 'event.line.alliance9.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'alliance_stage9' }],
     options: [
       {
@@ -633,6 +730,9 @@ export const events: Event[] = [
     id: 'line_assassin_1',
     titleKey: 'event.line.assassin1.title',
     descKey: 'event.line.assassin1.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage1' }],
     options: [
       {
@@ -653,6 +753,9 @@ export const events: Event[] = [
     id: 'line_assassin_2',
     titleKey: 'event.line.assassin2.title',
     descKey: 'event.line.assassin2.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage2' }],
     options: [
       {
@@ -673,6 +776,9 @@ export const events: Event[] = [
     id: 'line_assassin_3',
     titleKey: 'event.line.assassin3.title',
     descKey: 'event.line.assassin3.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage3' }],
     options: [
       {
@@ -693,6 +799,9 @@ export const events: Event[] = [
     id: 'line_assassin_4',
     titleKey: 'event.line.assassin4.title',
     descKey: 'event.line.assassin4.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage4' }],
     options: [
       {
@@ -713,6 +822,9 @@ export const events: Event[] = [
     id: 'line_assassin_5',
     titleKey: 'event.line.assassin5.title',
     descKey: 'event.line.assassin5.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage5' }],
     options: [
       {
@@ -733,6 +845,9 @@ export const events: Event[] = [
     id: 'line_assassin_6',
     titleKey: 'event.line.assassin6.title',
     descKey: 'event.line.assassin6.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage6' }],
     options: [
       {
@@ -753,6 +868,9 @@ export const events: Event[] = [
     id: 'line_assassin_7',
     titleKey: 'event.line.assassin7.title',
     descKey: 'event.line.assassin7.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage7' }],
     options: [
       {
@@ -773,6 +891,9 @@ export const events: Event[] = [
     id: 'line_assassin_8',
     titleKey: 'event.line.assassin8.title',
     descKey: 'event.line.assassin8.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage8' }],
     options: [
       {
@@ -793,6 +914,9 @@ export const events: Event[] = [
     id: 'line_assassin_9',
     titleKey: 'event.line.assassin9.title',
     descKey: 'event.line.assassin9.desc',
+    category: 'conditional',
+    locationId: 'road',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'assassin_stage9' }],
     options: [
       {
@@ -815,6 +939,9 @@ export const events: Event[] = [
     id: 'line_oath_1',
     titleKey: 'event.line.oath1.title',
     descKey: 'event.line.oath1.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage1' }],
     options: [
       {
@@ -835,6 +962,9 @@ export const events: Event[] = [
     id: 'line_oath_2',
     titleKey: 'event.line.oath2.title',
     descKey: 'event.line.oath2.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage2' }],
     options: [
       {
@@ -855,6 +985,9 @@ export const events: Event[] = [
     id: 'line_oath_3',
     titleKey: 'event.line.oath3.title',
     descKey: 'event.line.oath3.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage3' }],
     options: [
       {
@@ -875,6 +1008,9 @@ export const events: Event[] = [
     id: 'line_oath_4',
     titleKey: 'event.line.oath4.title',
     descKey: 'event.line.oath4.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage4' }],
     options: [
       {
@@ -895,6 +1031,9 @@ export const events: Event[] = [
     id: 'line_oath_5',
     titleKey: 'event.line.oath5.title',
     descKey: 'event.line.oath5.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage5' }],
     options: [
       {
@@ -915,6 +1054,9 @@ export const events: Event[] = [
     id: 'line_oath_6',
     titleKey: 'event.line.oath6.title',
     descKey: 'event.line.oath6.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage6' }],
     options: [
       {
@@ -935,6 +1077,9 @@ export const events: Event[] = [
     id: 'line_oath_7',
     titleKey: 'event.line.oath7.title',
     descKey: 'event.line.oath7.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage7' }],
     options: [
       {
@@ -955,6 +1100,9 @@ export const events: Event[] = [
     id: 'line_oath_8',
     titleKey: 'event.line.oath8.title',
     descKey: 'event.line.oath8.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage8' }],
     options: [
       {
@@ -975,6 +1123,9 @@ export const events: Event[] = [
     id: 'line_oath_9',
     titleKey: 'event.line.oath9.title',
     descKey: 'event.line.oath9.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'oath_stage9' }],
     options: [
       {
@@ -997,6 +1148,9 @@ export const events: Event[] = [
     id: 'line_sect_1',
     titleKey: 'event.line.sect1.title',
     descKey: 'event.line.sect1.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage1' }],
     options: [
       {
@@ -1017,6 +1171,9 @@ export const events: Event[] = [
     id: 'line_sect_2',
     titleKey: 'event.line.sect2.title',
     descKey: 'event.line.sect2.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage2' }],
     options: [
       {
@@ -1037,6 +1194,9 @@ export const events: Event[] = [
     id: 'line_sect_3',
     titleKey: 'event.line.sect3.title',
     descKey: 'event.line.sect3.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage3' }],
     options: [
       {
@@ -1057,6 +1217,9 @@ export const events: Event[] = [
     id: 'line_sect_4',
     titleKey: 'event.line.sect4.title',
     descKey: 'event.line.sect4.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage4' }],
     options: [
       {
@@ -1077,6 +1240,9 @@ export const events: Event[] = [
     id: 'line_sect_5',
     titleKey: 'event.line.sect5.title',
     descKey: 'event.line.sect5.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage5' }],
     options: [
       {
@@ -1097,6 +1263,9 @@ export const events: Event[] = [
     id: 'line_sect_6',
     titleKey: 'event.line.sect6.title',
     descKey: 'event.line.sect6.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage6' }],
     options: [
       {
@@ -1117,6 +1286,9 @@ export const events: Event[] = [
     id: 'line_sect_7',
     titleKey: 'event.line.sect7.title',
     descKey: 'event.line.sect7.desc',
+    category: 'conditional',
+    locationId: 'sect',
+    durationDays: 1,
     conditions: [{ type: 'flag', flag: 'sect_stage7' }],
     options: [
       {
@@ -1139,6 +1311,10 @@ export const events: Event[] = [
     id: 'crossroad',
     titleKey: 'event.crossroad.title',
     descKey: 'event.crossroad.desc',
+    category: 'fixed',
+    locationId: 'road',
+    durationDays: 2,
+    fixedDate: { year: 1, month: 3, day: 1 },
     options: [
       {
         textKey: 'event.crossroad.opt1',
@@ -1164,7 +1340,11 @@ export const events: Event[] = [
     titleKey: 'event.random.herb.title',
     descKey: 'event.random.herb.desc',
     random: true,
+    category: 'random',
     repeatable: true,
+    locationId: 'mountain',
+    durationDays: 1,
+    randomChance: { base: 0.18, scale: { luck: 0.02, wisdom: 0.01 } },
     options: [
       {
         textKey: 'event.random.herb.opt1',
@@ -1189,7 +1369,11 @@ export const events: Event[] = [
     titleKey: 'event.random.inn.title',
     descKey: 'event.random.inn.desc',
     random: true,
+    category: 'random',
     repeatable: true,
+    locationId: 'tavern',
+    durationDays: 1,
+    randomChance: { base: 0.16, scale: { luck: 0.02, morality: 0.01 } },
     options: [
       {
         textKey: 'event.random.inn.opt1',
@@ -1214,7 +1398,11 @@ export const events: Event[] = [
     titleKey: 'event.random.rain.title',
     descKey: 'event.random.rain.desc',
     random: true,
+    category: 'random',
     repeatable: true,
+    locationId: 'road',
+    durationDays: 1,
+    randomChance: { base: 0.2, scale: { luck: 0.02, strength: 0.01 } },
     options: [
       {
         textKey: 'event.random.rain.opt1',
@@ -1239,7 +1427,11 @@ export const events: Event[] = [
     titleKey: 'event.random.gift.title',
     descKey: 'event.random.gift.desc',
     random: true,
+    category: 'random',
     repeatable: true,
+    locationId: 'market',
+    durationDays: 1,
+    randomChance: { base: 0.15, scale: { luck: 0.03, renown: 0.01 } },
     options: [
       {
         textKey: 'event.random.gift.opt1',
@@ -1267,7 +1459,11 @@ export const events: Event[] = [
     titleKey: 'event.random.bounty.title',
     descKey: 'event.random.bounty.desc',
     random: true,
+    category: 'random',
     repeatable: true,
+    locationId: 'market',
+    durationDays: 1,
+    randomChance: { base: 0.14, scale: { luck: 0.02, wisdom: 0.02 } },
     options: [
       {
         textKey: 'event.random.bounty.opt1',

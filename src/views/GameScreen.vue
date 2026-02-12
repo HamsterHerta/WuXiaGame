@@ -9,7 +9,8 @@ import HUD from '../components/HUD.vue'
 const emit = defineEmits<{ (e: 'end'): void }>()
 
 const store = useGameStore()
-const { lang, lastSavedAt, currentEvent, chooseOption, setLang, clearSave } = store
+const { lang, lastSavedAt, currentEvent, chooseOption, setLang, clearSave, dateLabel, locationLabel } =
+  store
 
 const eventTitle = computed(() => {
   const event = currentEvent.value
@@ -42,8 +43,9 @@ watch(
   <div class="section-gap">
     <div class="row">
       <span class="badge">
-        {{ t('app.day', lang) }} {{ store.state.day }}{{ t('app.daySuffix', lang) }}
+        {{ t('app.date', lang) }} {{ dateLabel }}
       </span>
+      <span class="badge">{{ t('app.location', lang) }} {{ locationLabel }}</span>
       <span class="text-muted">{{ t('app.notice.saved', lang) }}: {{ lastSavedAt || '--' }}</span>
     </div>
 

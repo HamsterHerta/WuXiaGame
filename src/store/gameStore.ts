@@ -3,11 +3,14 @@ import type { Lang } from '../data/i18n'
 import { t } from '../data/i18n'
 import { endings } from '../data/endings'
 import { events, START_EVENT_ID } from '../data/events'
+import { locations } from '../data/locations'
 import type {
   Condition,
+  DateParts,
   Event,
   GameState,
   GameStats,
+  LocationId,
   Option,
   RandomReward,
   RelationEffect,
@@ -16,8 +19,9 @@ import type {
 } from '../data/types'
 
 const SAVE_KEY = 'wuxia_save_v1'
-const MAX_DAY = 30
-const CROSSROAD_DAY = 22
+const MAX_DAYS = 180
+const DAYS_PER_MONTH = 30
+const MONTHS_PER_YEAR = 12
 
 const baseStats: GameStats = {
   renown: 1,
@@ -35,14 +39,15 @@ const baseRelation: Record<RelationKey, number> = {
 }
 
 const createState = (): GameState => ({
-  day: 1,
+  date: { year: 1, month: 1, day: 1 },
   stats: { ...baseStats },
   relations: {},
   flags: {},
   currentEventId: START_EVENT_ID,
   history: [],
   ended: false,
-  endingId: undefined
+  endingId: undefined,
+  locationId: 'road'
 })
 
 const store = reactive({
@@ -54,6 +59,32 @@ const store = reactive({
 
 const clampStat = (value: number) => Math.max(0, Math.min(10, value))
 const DEADLINE = 0
+
+const pad2 = (value: number) => String(value).padStart(2, '0')
+
+const dateToIndex = (date: DateParts) => {
+  return (
+    (date.year - 1) * MONTHS_PER_YEAR * DAYS_PER_MONTH +
+    (date.month - 1) * DAYS_PER_MONTH +
+    (date.day - 1)
+  )
+}
+
+const indexToDate = (index: number): DateParts => {
+  const totalDays = Math.max(0, index)
+  const year = Math.floor(totalDays / (MONTHS_PER_YEAR * DAYS_PER_MONTH)) + 1
+  const yearRemainder = totalDays % (MONTHS_PER_YEAR * DAYS_PER_MONTH)
+  const month = Math.floor(yearRemainder / DAYS_PER_MONTH) + 1
+  const day = (yearRemainder % DAYS_PER_MONTH) + 1
+  return { year, month, day }
+}
+
+const addDays = (date: DateParts, days: number) => indexToDate(dateToIndex(date) + days)
+
+const formatDate = (date: DateParts, lang: Lang) => {
+  if (lang === 'zh') return `${date.year}年${date.month}月${date.day}日`
+  return `${date.year}-${pad2(date.month)}-${pad2(date.day)}`
+}
 
 const defaultRelationTarget = (eventId?: string) => {
   if (!eventId) return 'jianghu'
@@ -94,6 +125,16 @@ const meetsCondition = (condition: Condition, state: GameState) => {
       return Boolean(state.flags[condition.flag])
     case 'notFlag':
       return !state.flags[condition.flag]
+    case 'dateMin':
+      return dateToIndex(state.date) >= dateToIndex(condition.date)
+    case 'dateMax':
+      return dateToIndex(state.date) <= dateToIndex(condition.date)
+    case 'locationIs':
+      return state.locationId === condition.locationId
+    case 'locationNot':
+      return state.locationId !== condition.locationId
+    case 'eventDone':
+      return state.history.includes(condition.eventId)
     default:
       return false
   }
@@ -104,33 +145,67 @@ const eventAllowed = (event: Event, state: GameState) => {
   return event.conditions.every((condition) => meetsCondition(condition, state))
 }
 
-const pickNextEvent = (state: GameState) => {
-  if (state.day >= CROSSROAD_DAY && !state.history.includes('crossroad')) return 'crossroad'
+const eventLocationAllowed = (event: Event, state: GameState) => {
+  if (!event.locationId) return true
+  if (event.category === 'fixed' && event.fixedDate) return true
+  return event.locationId === state.locationId
+}
 
-  const randomPool = events.filter((event) => event.random && eventAllowed(event, state))
-  const normalPool = events.filter(
+const calcRandomChance = (event: Event, state: GameState) => {
+  const base = event.randomChance?.base ?? 0.18
+  const scale = event.randomChance?.scale ?? {}
+  const bonus = Object.entries(scale).reduce((sum, [stat, factor]) => {
+    const key = stat as StatKey
+    return sum + state.stats[key] * (factor ?? 0)
+  }, 0)
+  return Math.max(0.05, Math.min(0.9, base + bonus))
+}
+
+const pickNextEvent = (state: GameState) => {
+  const currentIndex = dateToIndex(state.date)
+  const pendingFixed = events.filter(
     (event) =>
-      !event.random &&
+      event.category === 'fixed' &&
+      event.fixedDate &&
+      !state.history.includes(event.id) &&
+      eventAllowed(event, state)
+  )
+  const dueFixed = pendingFixed
+    .filter((event) => dateToIndex(event.fixedDate!) <= currentIndex)
+    .sort((a, b) => dateToIndex(a.fixedDate!) - dateToIndex(b.fixedDate!))
+  if (dueFixed.length > 0) return dueFixed[0].id
+
+  const conditionalPool = events.filter(
+    (event) =>
+      event.category === 'conditional' &&
       event.id !== state.currentEventId &&
       !state.history.includes(event.id) &&
-      eventAllowed(event, state) &&
-      event.id !== 'crossroad'
+      eventAllowed(event, state)
   )
+  if (conditionalPool.length > 0) return conditionalPool[0].id
 
-  const luckBonus = Math.min(0.2, state.stats.luck * 0.02)
-  const randomChance = 0.35 + luckBonus
-  if (randomPool.length > 0 && Math.random() < randomChance) {
-    const index = Math.floor(Math.random() * randomPool.length)
-    return randomPool[index].id
+  const randomPool = events.filter(
+    (event) => event.random && eventAllowed(event, state) && eventLocationAllowed(event, state)
+  )
+  if (randomPool.length > 0) {
+    const weighted = randomPool.map((event) => ({
+      event,
+      weight: calcRandomChance(event, state)
+    }))
+    const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0)
+    const averageChance = totalWeight / weighted.length
+    if (Math.random() < averageChance) {
+      const roll = Math.random() * totalWeight
+      let cursor = 0
+      for (const item of weighted) {
+        cursor += item.weight
+        if (roll <= cursor) return item.event.id
+      }
+      return weighted[weighted.length - 1].event.id
+    }
   }
 
-  if (normalPool.length === 0) {
-    if (!state.history.includes('crossroad')) return 'crossroad'
-    return START_EVENT_ID
-  }
-
-  const index = Math.floor(Math.random() * normalPool.length)
-  return normalPool[index].id
+  return START_EVENT_ID
 }
 
 const applyEffects = (effects: Option['effects'] | undefined, stats: GameStats) => {
@@ -207,9 +282,16 @@ const loadGame = () => {
     const data = JSON.parse(raw) as { lang?: Lang; state?: GameState }
     if (data.lang) store.lang = data.lang
     if (data.state) {
-      Object.assign(store.state, data.state)
+      const incoming = data.state as GameState & { day?: number }
+      if (!incoming.date && typeof incoming.day === 'number') {
+        incoming.date = addDays({ year: 1, month: 1, day: 1 }, Math.max(0, incoming.day - 1))
+      }
+      Object.assign(store.state, incoming)
       if (!store.state.relations) {
         store.state.relations = {}
+      }
+      if (!store.state.locationId) {
+        store.state.locationId = 'road'
       }
     }
     store.saveVersion += 1
@@ -260,14 +342,16 @@ const chooseOption = (option: Option) => {
 
   const activeEvent = currentEvent.value
   const eventWait = activeEvent?.waitDays ?? 1
-  let optionWait = option.waitDays ?? eventWait
-  if (option.waitDays == null && activeEvent && !activeEvent.random) {
+  const eventDuration = activeEvent?.durationDays ?? eventWait
+  let optionWait =
+    option.durationDays ?? option.waitDays ?? eventDuration
+  if (option.durationDays == null && option.waitDays == null && activeEvent && !activeEvent.random) {
     const isFirst = option.textKey.endsWith('opt1')
-    optionWait = isFirst ? Math.max(2, eventWait) : Math.max(1, eventWait - 1)
+    optionWait = isFirst ? Math.max(2, optionWait) : Math.max(1, optionWait - 1)
   }
-  store.state.day += Math.max(1, optionWait)
+  store.state.date = addDays(store.state.date, Math.max(1, optionWait))
 
-  if (store.state.day >= MAX_DAY) {
+  if (dateToIndex(store.state.date) + 1 >= MAX_DAYS) {
     resolveEnding(store.state)
     saveGame()
     return
@@ -280,6 +364,10 @@ const chooseOption = (option: Option) => {
       ? candidateId
       : pickNextEvent(store.state)
   store.state.currentEventId = nextId
+  const nextEvent = events.find((event) => event.id === nextId)
+  const nextLocation: LocationId =
+    option.moveTo ?? nextEvent?.locationId ?? store.state.locationId
+  store.state.locationId = nextLocation
   saveGame()
 }
 
@@ -310,6 +398,13 @@ const hudStats = computed(() => {
   ]
 })
 
+const locationLabel = computed(() => {
+  const item = locations.find((location) => location.id === store.state.locationId)
+  return item ? t(item.nameKey, store.lang) : '--'
+})
+
+const dateLabel = computed(() => formatDate(store.state.date, store.lang))
+
 const statKeys: StatKey[] = ['renown', 'strength', 'wisdom', 'wealth', 'morality', 'luck']
 
 const statLabels = computed(() => {
@@ -337,6 +432,8 @@ export const useGameStore = () => {
     canContinue,
     getEnding,
     hudStats,
+    locationLabel,
+    dateLabel,
     statLabels,
     newGame,
     loadGame,
