@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 事件展示组件：只负责标题和描述渲染
 defineProps<{ title: string; description: string }>()
 </script>
 

@@ -19,10 +19,12 @@ import type {
 } from '../data/types'
 
 const SAVE_KEY = 'wuxia_save_v1'
+// 游戏总时长上限（按天计算）
 const MAX_DAYS = 180
 const DAYS_PER_MONTH = 30
 const MONTHS_PER_YEAR = 12
 
+// 主角初始属性
 const baseStats: GameStats = {
   renown: 1,
   strength: 1,
@@ -32,12 +34,14 @@ const baseStats: GameStats = {
   luck: 1
 }
 
+// 单个目标（人物/势力）的关系默认值
 const baseRelation: Record<RelationKey, number> = {
   favor: 0,
   rivalry: 0,
   loyalty: 0
 }
 
+// 初始化全局游戏状态
 const createState = (): GameState => ({
   date: { year: 1, month: 1, day: 1 },
   stats: { ...baseStats },
@@ -60,6 +64,7 @@ const store = reactive({
 const clampStat = (value: number) => Math.max(0, Math.min(10, value))
 const DEADLINE = 0
 
+// 工具：日期与序号相互转换，便于做区间/大小比较
 const pad2 = (value: number) => String(value).padStart(2, '0')
 
 const dateToIndex = (date: DateParts) => {
@@ -86,6 +91,7 @@ const formatDate = (date: DateParts, lang: Lang) => {
   return `${date.year}-${pad2(date.month)}-${pad2(date.day)}`
 }
 
+// 未显式声明 target 时，根据事件 ID 兜底推断关系对象
 const defaultRelationTarget = (eventId?: string) => {
   if (!eventId) return 'jianghu'
   if (eventId.includes('assassin')) return 'enemy'
@@ -96,6 +102,7 @@ const defaultRelationTarget = (eventId?: string) => {
   return 'jianghu'
 }
 
+// 读取某个目标的关系，若不存在则自动初始化
 const getRelation = (state: GameState, target: string) => {
   if (!state.relations[target]) {
     state.relations[target] = { ...baseRelation }
@@ -103,6 +110,7 @@ const getRelation = (state: GameState, target: string) => {
   return state.relations[target]
 }
 
+// 统一条件判定入口
 const meetsCondition = (condition: Condition, state: GameState) => {
   switch (condition.type) {
     case 'statMin':
@@ -140,17 +148,20 @@ const meetsCondition = (condition: Condition, state: GameState) => {
   }
 }
 
+// 事件可见性判定：conditions 全满足才可进入
 const eventAllowed = (event: Event, state: GameState) => {
   if (!event.conditions || event.conditions.length === 0) return true
   return event.conditions.every((condition) => meetsCondition(condition, state))
 }
 
+// 地点匹配判定：固定事件按日期触发，不强制当前位置
 const eventLocationAllowed = (event: Event, state: GameState) => {
   if (!event.locationId) return true
   if (event.category === 'fixed' && event.fixedDate) return true
   return event.locationId === state.locationId
 }
 
+// 计算随机事件触发概率（基础值 + 属性加权）
 const calcRandomChance = (event: Event, state: GameState) => {
   const base = event.randomChance?.base ?? 0.18
   const scale = event.randomChance?.scale ?? {}
@@ -161,6 +172,11 @@ const calcRandomChance = (event: Event, state: GameState) => {
   return Math.max(0.05, Math.min(0.9, base + bonus))
 }
 
+// 下一事件选择优先级：
+// 1) 到期 fixed 事件
+// 2) 满足条件的 conditional 事件
+// 3) 满足条件的 random 事件（按概率）
+// 4) 回到 start
 const pickNextEvent = (state: GameState) => {
   const currentIndex = dateToIndex(state.date)
   const pendingFixed = events.filter(
@@ -208,6 +224,7 @@ const pickNextEvent = (state: GameState) => {
   return START_EVENT_ID
 }
 
+// 应用属性变化
 const applyEffects = (effects: Option['effects'] | undefined, stats: GameStats) => {
   if (!effects) return
   effects.forEach((effect) => {
@@ -215,6 +232,7 @@ const applyEffects = (effects: Option['effects'] | undefined, stats: GameStats) 
   })
 }
 
+// 应用关系变化
 const applyRelationEffects = (
   effects: RelationEffect[] | undefined,
   relations: GameState['relations'],
@@ -247,6 +265,7 @@ const applyRandomRewards = (rewards: RandomReward[] | undefined, stats: GameStat
   })
 }
 
+// 任一属性跌到 DEADLINE 触发死亡结局
 const checkDeath = (state: GameState) => {
   const dead = Object.values(state.stats).some((value) => value <= DEADLINE)
   if (!dead) return false
@@ -255,6 +274,7 @@ const checkDeath = (state: GameState) => {
   return true
 }
 
+// 时间到或中断时，根据 endings 配置匹配最终结局
 const resolveEnding = (state: GameState) => {
   const matched = endings.find((ending) => {
     if (!ending.conditions || ending.conditions.length === 0) return true
@@ -265,6 +285,7 @@ const resolveEnding = (state: GameState) => {
   state.ended = true
 }
 
+// 存档
 const saveGame = () => {
   const payload = {
     lang: store.lang,
@@ -275,6 +296,7 @@ const saveGame = () => {
   store.saveVersion += 1
 }
 
+// 读档（包含旧版本 day 字段兼容迁移）
 const loadGame = () => {
   const raw = localStorage.getItem(SAVE_KEY)
   if (!raw) return false
@@ -312,6 +334,11 @@ const newGame = () => {
   saveGame()
 }
 
+// 核心回合结算：
+// 1) 应用选项效果
+// 2) 推进日期
+// 3) 判定结局
+// 4) 选取下一事件并更新地点
 const chooseOption = (option: Option) => {
   if (store.state.ended) return
 
@@ -341,11 +368,13 @@ const chooseOption = (option: Option) => {
   }
 
   const activeEvent = currentEvent.value
+  // 事件耗时优先级：option.durationDays > option.waitDays > event.durationDays > event.waitDays > 1
   const eventWait = activeEvent?.waitDays ?? 1
   const eventDuration = activeEvent?.durationDays ?? eventWait
   let optionWait =
     option.durationDays ?? option.waitDays ?? eventDuration
   if (option.durationDays == null && option.waitDays == null && activeEvent && !activeEvent.random) {
+    // 主线默认节奏：opt1 相对更耗时，opt2 更快
     const isFirst = option.textKey.endsWith('opt1')
     optionWait = isFirst ? Math.max(2, optionWait) : Math.max(1, optionWait - 1)
   }
@@ -359,8 +388,8 @@ const chooseOption = (option: Option) => {
 
   const candidateId = option.nextEventId
   const candidateEvent = candidateId ? events.find((event) => event.id === candidateId) : undefined
-  const nextId =
-    candidateEvent && candidateId !== store.state.currentEventId
+  const nextId: string =
+    candidateEvent && candidateId && candidateId !== store.state.currentEventId
       ? candidateId
       : pickNextEvent(store.state)
   store.state.currentEventId = nextId

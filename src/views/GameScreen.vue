@@ -9,6 +9,7 @@ import HUD from '../components/HUD.vue'
 const emit = defineEmits<{ (e: 'end'): void }>()
 
 const store = useGameStore()
+// 游戏页：读取当前事件、展示选项，并在结局触发后切到 EndScreen
 const { lang, lastSavedAt, currentEvent, chooseOption, setLang, clearSave, dateLabel, locationLabel } =
   store
 

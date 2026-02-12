@@ -1,5 +1,8 @@
 export type Lang = 'zh' | 'en'
 
+// 多语言文案表：
+// - key 统一由业务层引用（事件、按钮、状态名称等）
+// - 新增事件时需同步补齐 title/desc/opt 文案
 export const i18n = {
   'app.title': { zh: '江湖权谋', en: 'Wuxia Reign' },
   'app.subtitle': { zh: '一念抉择，命途江湖', en: 'One choice, a different fate.' },

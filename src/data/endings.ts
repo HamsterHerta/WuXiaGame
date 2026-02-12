@@ -1,5 +1,6 @@
 import type { Ending } from './types'
 
+// 结局表：按顺序匹配，越靠前优先级越高
 export const endings: Ending[] = [
   {
     id: 'death',

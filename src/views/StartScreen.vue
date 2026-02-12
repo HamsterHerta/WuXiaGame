@@ -10,6 +10,7 @@ const emit = defineEmits<{
   (e: 'continue'): void
 }>()
 
+// 开始页仅负责新开局、继续、语言切换与清档入口
 const { lang, lastSavedAt, setLang, clearSave } = useGameStore()
 
 const title = computed(() => t('app.title', lang.value))

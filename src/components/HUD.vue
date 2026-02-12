@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGameStore } from '../store/gameStore'
 
+// 仅展示主角基础属性
 const { hudStats } = useGameStore()
 </script>
 

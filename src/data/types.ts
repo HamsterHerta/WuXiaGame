@@ -1,15 +1,23 @@
 import type { I18nKey } from './i18n'
 
+// 主角基础数值键
 export type StatKey = 'renown' | 'strength' | 'wisdom' | 'wealth' | 'morality' | 'luck'
 
+// 游戏内日期结构，统一使用“年/月/日”
 export type DateParts = { year: number; month: number; day: number }
 
+// 可用地点 ID，事件可绑定地点
 export type LocationId = 'road' | 'sect' | 'market' | 'tavern' | 'village' | 'mountain'
 
+// 事件类别：
+// fixed: 固定时间必定触发
+// conditional: 条件满足后必定触发
+// random: 条件满足后按概率触发
 export type EventCategory = 'fixed' | 'conditional' | 'random'
 
 export type GameStats = Record<StatKey, number>
 
+// 事件触发条件定义，可按需组合多个条件
 export type Condition =
   | { type: 'statMin'; stat: StatKey; value: number }
   | { type: 'statMax'; stat: StatKey; value: number }
@@ -25,12 +33,15 @@ export type Condition =
 
 export type Effect = { stat: StatKey; delta: number }
 
+// 关系维度：好感 / 仇恨 / 情义
 export type RelationKey = 'favor' | 'rivalry' | 'loyalty'
 
 export type RelationStats = Record<RelationKey, number>
 
+// 关系变化；target 表示具体人物/势力 ID
 export type RelationEffect = { stat: RelationKey; delta: number; target?: string }
 
+// 选项定义：可同时包含数值变化、关系变化、地点变化、跳转等
 export type Option = {
   textKey: I18nKey
   effects?: Effect[]
@@ -45,6 +56,10 @@ export type Option = {
   moveTo?: LocationId
 }
 
+// 事件定义：
+// - fixedDate 用于固定事件
+// - conditions 用于条件/随机事件
+// - randomChance 控制随机触发概率
 export type Event = {
   id: string
   titleKey: I18nKey
@@ -69,6 +84,7 @@ export type Ending = {
   conditions?: Condition[]
 }
 
+// 游戏运行态
 export type GameState = {
   date: DateParts
   stats: GameStats
@@ -81,6 +97,7 @@ export type GameState = {
   locationId: LocationId
 }
 
+// 随机奖励：随机值 + 可选属性加成
 export type RandomReward = {
   stat: StatKey
   min: number
@@ -89,6 +106,7 @@ export type RandomReward = {
   scaleFactor?: number
 }
 
+// 随机事件概率模型：基础概率 + 按属性加权
 export type RandomChance = {
   base: number
   scale?: Partial<Record<StatKey, number>>

@@ -2,6 +2,29 @@ import type { Event } from './types'
 
 export const START_EVENT_ID = 'start'
 
+// 事件表（数据驱动）
+// 新增事件时优先复制以下模板并按需调整：
+// {
+//   id: 'your_event_id',
+//   titleKey: 'event.your.title',
+//   descKey: 'event.your.desc',
+//   category: 'conditional', // fixed | conditional | random
+//   locationId: 'road',
+//   fixedDate: { year: 1, month: 1, day: 10 }, // fixed 事件可用
+//   conditions: [{ type: 'statMin', stat: 'wisdom', value: 3 }],
+//   randomChance: { base: 0.2, scale: { luck: 0.01, wisdom: 0.005 } }, // random 事件可用
+//   durationDays: 2,
+//   options: [
+//     {
+//       textKey: 'event.your.opt1',
+//       effects: [{ stat: 'wisdom', delta: 1 }],
+//       relationTarget: 'li_qing',
+//       relationEffects: [{ stat: 'favor', delta: 1, target: 'li_qing' }],
+//       moveTo: 'tavern',
+//       nextEventId: 'another_event'
+//     }
+//   ]
+// }
 export const events: Event[] = [
   {
     id: 'start',

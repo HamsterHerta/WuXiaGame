@@ -6,6 +6,7 @@ import { t } from '../data/i18n'
 defineEmits<{ (e: 'restart'): void }>()
 
 const store = useGameStore()
+// 结局页：显示匹配到的结局文本，并提供重开入口
 const { lang, getEnding, setLang, clearSave } = store
 
 const endingTitle = computed(() => {
